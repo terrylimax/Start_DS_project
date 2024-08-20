@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 #from streamlit import session_state as ss
 import seaborn as sns
     
-def open_excel_data(path="Data/salaries.xlsx"): # функция для открытия данных для зарплат
+def open_excel_data(path="Data/Salaries.xlsx"): # функция для открытия данных для зарплат
     df = pd.read_excel(path)
     return df
 
