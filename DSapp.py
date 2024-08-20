@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 #from streamlit import session_state as ss
 import seaborn as sns
 
-
 def open_excel_data(path="Data/Salaries.xlsx"): # функция для открытия данных для зарплат
     df = pd.read_excel(path)
     return df
@@ -136,16 +135,20 @@ def process_side_bar_inputs():
         st.session_state.show_inflation_chart = True
         st.session_state.show_salary_chart = False
         plot_bar_inflation_percentage()
+        return
     if graph_choice == 'Линейный':
         plot_linear()
         st.session_state.show_salary_chart = True
         st.session_state.show_inflation_chart = False
+        return
     elif graph_choice == 'Столбчатый':
         plot_bar()
         st.session_state.show_salary_chart = True
         st.session_state.show_inflation_chart = False
+        return
     
 
 if __name__ == "__main__":
     process_side_bar_inputs()
+    
     
