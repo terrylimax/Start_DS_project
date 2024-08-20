@@ -62,7 +62,6 @@ def plot_decorator(func): # декоратор для построения гр�
 
             # Построение графика
             sns.set_theme(style="whitegrid")  # Выбор стиля
-            plt.figure(figsize=(12, 6))  # Установка размера фигуры
 
             bar_width = 0.4  # Ширина столбцов
 
@@ -72,18 +71,19 @@ def plot_decorator(func): # декоратор для построения гр�
             # Добавление подписей
             #plt.title(i)
             #plt.xlabel("Годы")
-            #plt.ylabel("Зарплата (рубли)")  
+            #plt.ylabel("Зарплата (рубли)")
 
-            # Перемещаем легенду за пределы графика
-            plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
-
-            # Отображение сетки
-            plt.grid(True)
             # Отображение графика
             fig, ax = plt.subplots()
+            func(ax, years, economic_activity, real_salary, bar_width, i, *args, **kwargs)
+            # Отображение сетки
+            ax.grid(True)
             ax.set_title(i)
             ax.set_xlabel("Годы")
-            func(ax, years, economic_activity, real_salary, bar_width, i, *args, **kwargs)
+            #ax.figure(figsize=(20, 6))  # Установка размера фигуры
+            # Перемещаем легенду за пределы графика
+            ax.legend(bbox_to_anchor=(0, -0.13), loc='upper left', borderaxespad=0.)
+            
             st.pyplot(fig) # выводим график в Streamlit
             #plt.show()
     return wrapper
@@ -93,7 +93,7 @@ def plot_decorator(func): # декоратор для построения гр�
 def plot_linear(ax, years, economic_activity, real_salary, bar_width, i): # функция для построения линейного графика зарплат
     sns.lineplot(x=years, y=economic_activity, label=f"{i} - Без учета инфляции") # строим график зп без учета инфляции
     sns.lineplot(x=years, y=real_salary, label=f"{i} - С учетом инфляции") # строим график зп с учетом инфляции
-    plt.ylabel("Зарплата (рубли)")  
+    ax.set_ylabel("Зарплата (рубли)")  
     print('Абсолютное значение повышения зарплаты БЕЗ учета инфляции для направления',i,':', round((economic_activity[-1]-economic_activity[0])))
     print('Абсолютное значение повышения зарплаты с учетом инфляции для направления',i,':', round((real_salary[-1]-real_salary[0])))
 
@@ -104,7 +104,7 @@ def plot_bar(ax, years, economic_activity, real_salary, bar_width, i): # фун�
     #plt.bar(years - bar_width/2, economic_activity, width=bar_width, label='Nominal Salary')
     #plt.bar(years + bar_width/2, real_salary, width=bar_width, label='Real Salary')
     ax.bar(years + bar_width/2, real_salary, width=bar_width, label='Real Salary')
-    plt.ylabel("Зарплата (рубли)")  
+    ax.set_ylabel("Зарплата (рубли)")  
     
 #@data_decorator
 @plot_decorator
@@ -114,10 +114,10 @@ def plot_bar_inflation_percentage(ax, years, economic_activity, real_salary, bar
     real_change = pd.Series(real_salary).pct_change().dropna() * 100
     years = np.array(years)  # Преобразуем список в массив NumPy
     # Построение столбцов для процентного изменения номинальной зарплаты
-    plt.bar(years[1:] - bar_width/2, nominal_change, width=bar_width, label='Nominal Salary Change (%)')
+    ax.bar(years[1:] - bar_width/2, nominal_change, width=bar_width, label='Nominal Salary Change (%)')
     # Построение столбцов для процентного изменения реальной зарплаты
-    plt.bar(years[1:] + bar_width/2, real_change, width=bar_width, label='Real Salary Change (%)')
-    plt.ylabel("Изменение (%)")
+    ax.bar(years[1:] + bar_width/2, real_change, width=bar_width, label='Real Salary Change (%)')
+    ax.set_ylabel("Изменение (%)")
 
 
 def sidebar_input_features():    
