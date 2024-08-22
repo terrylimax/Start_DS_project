@@ -29,13 +29,13 @@ def inflation_convert(inflation_df): #преобразование данных 
     inflation_rate = inflation_rate.values[0][0:] # преобразование в массив
     
     #Вычисление накопленной инфляции по годам с округлением значений и сохранением в new_inflation.
-    inflation=0 # суммарная инфляция по годам
-    summarized_inflation=[] # массив для сохранения суммарной инфляции для каждого года
+    cumulative_inflation=1 # суммарная инфляция по годам
+    cumulative_inflation_indexes_pereach_year=[] # массив для хранения накопленной инфляции для каждого года
     for i in inflation_rate:
-        inflation+=i
-        summarized_inflation.append(inflation.round())
-    
-    return summarized_inflation # возвращаем массив суммарной инфляции
+        cumulative_inflation*=(1+i/100)
+        cumulative_inflation_indexes_pereach_year.append(cumulative_inflation) # округляем значения и добавляем в массив
+    print(cumulative_inflation_indexes_pereach_year)
+    return cumulative_inflation_indexes_pereach_year # возвращаем массив суммарной инфляции
 
 def plot_decorator(func): # декоратор для построения графика
     def wrapper(*args, **kwargs):
@@ -50,14 +50,12 @@ def plot_decorator(func): # декоратор для построения гр�
         for i in activities:
             economic_activity = df[df['Экономическая деятельность'] == i].values[0][1:]
             #st.write(economic_activity)
-            # Инициализируем переменную для совокупного коэффициента инфляции
-            cumulative_inflation = 0
 
             # Рассчитываем реальную зарплату с учетом совокупной инфляции
             real_salary = []
             for nominal, cumulative_inflation in zip(economic_activity, summarized_inflation):
-                #print(cumulative_inflation)
-                real_salary.append(nominal/(1+cumulative_inflation/100))
+                print(f'nominal {nominal},cumulative_inflation {cumulative_inflation}, real_salary {nominal/(1+cumulative_inflation/100)}')
+                real_salary.append(nominal/cumulative_inflation)
             #print(real_salary)
 
             # Построение графика
@@ -75,12 +73,14 @@ def plot_decorator(func): # декоратор для построения гр�
 
             # Отображение графика
             fig, ax = plt.subplots()
+            #fig = plt.figure(figsize=(18, 9))  # Установка размера фигуры
             func(ax, years, economic_activity, real_salary, bar_width, i, *args, **kwargs)
             # Отображение сетки
             ax.grid(True)
+            ax.set_xticks(np.arange(2000, 2024, 1.0))
+            ax.tick_params(axis='x', rotation=90)
             ax.set_title(i)
             ax.set_xlabel("Годы")
-            #ax.figure(figsize=(20, 6))  # Установка размера фигуры
             # Перемещаем легенду за пределы графика
             ax.legend(bbox_to_anchor=(0, -0.13), loc='upper left', borderaxespad=0.)
             
@@ -131,7 +131,7 @@ def process_side_bar_inputs():
     years = df.columns[1:].astype(int) # получаем года из названий столбцов
     summarized_inflation = inflation_convert(inflation_df) # преобразуем данные по инфляции"""
     graph_choice = sidebar_input_features() # обрабатываем входные данные для боковой панели
-    if st.sidebar.button('Show Inflation Percentage Chart'): 
+    if st.sidebar.button('Показать % изменения зарплаты с учетом инфляции'): # кнопка для отображения изменений зарплаты с учетом инфляции
         st.session_state.show_inflation_chart = True
         st.session_state.show_salary_chart = False
         plot_bar_inflation_percentage()
